@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     String filename = "theapk.apk";
     File file;
     final String TAG = "Updater";
-    final String update_url = "https://drive.google.com/open?id=0Bza-O7dxp0bwX1NvcGlzTV9vTEhISzBiVmhfT1hfazBkRENN";
+    final String update_url = "https://galbenyosef.000webhostapp.com/app-release.apk";
 
     public  void isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
         file = new File(destination);
         if (file.exists())
-            //file.delete() - test this, I think sometimes it doesnt work
             file.delete();
 
         //set downloadmanager
@@ -82,10 +81,11 @@ public class MainActivity extends AppCompatActivity {
 
         //set destination
         request.setDestinationUri(uri);
+        request.setMimeType("application/vnd.android.package-archive");
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         // get download service and enqueue file
         final DownloadManager manager = (DownloadManager) getSystemService(getApplicationContext().DOWNLOAD_SERVICE);
-        final long downloadId = manager.enqueue(request);
+        manager.enqueue(request);
 
         //set BroadcastReceiver to install app when .apk is downloaded
         BroadcastReceiver onComplete = new BroadcastReceiver() {
@@ -96,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
                         i.setAction(Intent.ACTION_INSTALL_PACKAGE);
                         i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID+".provider" ,file);
-                        i.setData(contentUri);
+                        i.setDataAndType(contentUri,"application/vnd.android.package-archive");
                     } else {
                         i.setAction(Intent.ACTION_VIEW);
                         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        i.setData(Uri.fromFile(file));
+                        i.setDataAndType(Uri.fromFile(file),"application/vnd.android.package-archive");
                     }
                     Log.d("Lofting", "About to install new .apk");
                     getApplication().startActivity(i);
